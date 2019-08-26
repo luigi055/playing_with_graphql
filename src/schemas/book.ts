@@ -1,13 +1,12 @@
 import * as graphql from "graphql";
-import AuthorType, { Author } from "./author";
-import dummyAuthor from "./mocks/authors";
+import AuthorType, { Author as IAuthor } from "./author";
+import Author from "../models/author";
 
 export interface Book {
-  id: string;
   name: string;
   genre: string;
   author_id: string;
-  author: Author;
+  author: IAuthor;
 }
 
 const { GraphQLObjectType, GraphQLString, GraphQLID } = graphql;
@@ -21,7 +20,7 @@ const bookType = new GraphQLObjectType({
     author: {
       type: AuthorType,
       resolve(parent: Book) {
-        return dummyAuthor.find(({ id }) => id === parent.author_id);
+        return Author.findById(parent.author_id);
       }
     }
   })

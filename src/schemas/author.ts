@@ -1,6 +1,6 @@
 import * as graphql from "graphql";
-import BookType, { Book } from "./book";
-import dummyBooks from "./mocks/books";
+import Book from "../models/book";
+import BookType, { Book as IBook } from "./book";
 
 const {
   GraphQLObjectType,
@@ -13,11 +13,14 @@ const {
 export interface Author {
   name: string;
   age: number;
-  id: string;
-  books: Book[];
+  books: IBook[];
 }
 
-const authorBook = new GraphQLObjectType({
+export interface AuthorModeled extends Author {
+  id: string;
+}
+
+const AuthorBook = new GraphQLObjectType({
   name: "Author",
   fields: () => ({
     id: { type: GraphQLID },
@@ -25,11 +28,11 @@ const authorBook = new GraphQLObjectType({
     age: { type: GraphQLInt },
     books: {
       type: new GraphQLList(BookType),
-      resolve(parent) {
-        return dummyBooks.filter(({ author_id }) => author_id === parent.id);
+      resolve(parent: AuthorModeled) {
+        return Book.find({ author_id: parent.id });
       }
     }
   })
 });
 
-export default authorBook;
+export default AuthorBook;
